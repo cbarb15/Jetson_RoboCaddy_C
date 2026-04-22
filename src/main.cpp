@@ -3,12 +3,21 @@
 #include <signal.h>
 #include <simpleble/SimpleBLE.h>
 #include <jetgpio.h>
+#include <stdio.h>
+#include <string.h>
+
+// Linux headers
+#include <fcntl.h> // Contains file controls like O_RDWR
+#include <errno.h> // Error integer and strerror() function
+#include <termios.h> // Contains POSIX terminal control definitions
+#include <unistd.h> // write(), read(), close()
 
 using namespace std;
 
 /* Global variable to interrupt the loop later on*/
 static volatile int interrupt = 1;
 unsigned long timestamp;
+struct termios tty;
 
 void searchAndConnect();
 void connect(SimpleBLE::Peripheral* peripheral);
@@ -16,6 +25,15 @@ void setupGPIO();
 
 int main() {
     setupGPIO();
+
+    int serial_port = open("/dev/ttyACM0", O_RDWR);
+    if (serial_port < 0) {
+        cout << "Error opening serial port " << serial_port << endl;
+    }
+
+    if (tcgetattr(serial_port, &tty) != 0) {
+        cout << "Error " << errno << " from tcgetattr() " << endl;
+    }
     // peripheral.disconnect();
 }
 
