@@ -8,4 +8,4 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 find_package(simpleble REQUIRED CONFIG)
 
 add_executable(roboCaddy src/main.cpp)
-target_link_libraries(roboCaddy PRIVATE simpleble::simpleble)
+target_link_libraries(roboCaddy PRIVATE simpleble::simpleble /usr/lib/libjetgpio.so)
