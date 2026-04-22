@@ -28,7 +28,7 @@ void setupGPIO();
 int main() {
     // setupGPIO();
 
-    int serial_port = open("/dev/ttyACM0", O_RDWR);
+    int serial_port = open("/dev/ttyACM2", O_RDWR);
     if (serial_port < 0) {
         cout << "Error opening serial port " << serial_port << endl;
     }
@@ -64,6 +64,13 @@ int main() {
         cout << "Error " << strerror(errno) << " from tcsetattr" << endl;
     }
     cout << "Terminos saved with config" << endl;
+
+    unsigned char msg[] = { 'H', 'e', 'l', 'l', 'o', '\r'};
+    while (true) {
+        write(serial_port, msg, sizeof(msg));
+        usleep(5000);
+        cout << "Sending Hello over serial" << endl;
+    }
 
     // peripheral.disconnect();
 }
