@@ -188,8 +188,8 @@ void searchAndConnect()
     cout << "Device To Connect To" << peripheral.identifier() << " [" << peripheral.address() << "]" << endl;
 
     // TODO: This wil be conditional. It will call disconnect if the button is pressed and connected
-    // peripheral.disconnect();
-    connect(&peripheral);
+    peripheral.disconnect();
+    // connect(&peripheral);
 }
 
 void connect(SimpleBLE::Peripheral* peripheral) {
