@@ -23,6 +23,7 @@ static volatile int interrupt = 1;
 unsigned long timestamp;
 struct termios tty;
 int serial_port;
+bool initializing;
 
 void searchAndConnect();
 void connect(SimpleBLE::Peripheral* peripheral);
@@ -30,13 +31,14 @@ void setupGPIO();
 void setupSerialComm();
 
 int main() {
+    initializing = true;
     thread gpioThread(setupGPIO);
     thread serialThread(setupSerialComm);
 
-    unsigned char msg[] = { 'H', 'e', 'l', 'l', 'o', '\r'};
-    this_thread::sleep_for(chrono::seconds(5));
-    cout << "Sending Hello over serial" << endl;
-    write(serial_port, msg, sizeof(msg));
+    // unsigned char msg[] = { 'H', 'e', 'l', 'l', 'o', '\r'};
+    // this_thread::sleep_for(chrono::seconds(5));
+    // cout << "Sending Hello over serial" << endl;
+    // write(serial_port, msg, sizeof(msg));
 
     gpioThread.join();
     serialThread.join();
@@ -45,8 +47,7 @@ int main() {
 
 }
 
-
-/* Ctrl-c signal function handler */
+//* Ctrl-c signal function handler */
 void inthandler(int signum)
 {
     usleep(1000);
@@ -94,8 +95,10 @@ void setupGPIO()
         printf("gpio setting up okay. Return code:  %d\n", stat);
     }
 
+    int level = gpioRead(7);
+    printf("GPIO LEVEL: %d\n",level);
     // Now setting up pin 7 to detect edges, rising & falling edge with a 1000 useconds debouncing and when event is detected calling func "calling"
-    int stat2 = gpioSetISRFunc(7, EITHER_EDGE, 1000, &timestamp, &calling);
+    int stat2 = gpioSetISRFunc(7, RISING_EDGE, 1000, &timestamp, &calling);
     if (stat2 < 0)
     {
         /* gpio setting up failed */
