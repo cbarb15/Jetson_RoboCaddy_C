@@ -23,7 +23,6 @@ static volatile int interrupt = 1;
 unsigned long timestamp;
 struct termios tty;
 int serial_port;
-bool initializing;
 
 void searchAndConnect();
 void connect(SimpleBLE::Peripheral* peripheral);
@@ -31,14 +30,8 @@ void setupGPIO();
 void setupSerialComm();
 
 int main() {
-    initializing = true;
     thread gpioThread(setupGPIO);
     thread serialThread(setupSerialComm);
-
-    // unsigned char msg[] = { 'H', 'e', 'l', 'l', 'o', '\r'};
-    // this_thread::sleep_for(chrono::seconds(5));
-    // cout << "Sending Hello over serial" << endl;
-    // write(serial_port, msg, sizeof(msg));
 
     gpioThread.join();
     serialThread.join();
@@ -202,6 +195,10 @@ void searchAndConnect()
 void connect(SimpleBLE::Peripheral* peripheral) {
     cout << "Connecting to " << peripheral->identifier() << " [" << peripheral->address() << "]" << endl;
     peripheral->connect();
+
+    unsigned char txBuffer[] = { 'C', 'o', 'n', 'n', 'e', 'c', 't', 'e', 'd', '\r'};
+    cout << "Sending Connected over serial" << endl;
+    write(serial_port, &txBuffer, sizeof(txBuffer));
 
     vector<pair<SimpleBLE::BluetoothUUID, SimpleBLE::BluetoothUUID>> readable_characteristics;
     for (auto& service : peripheral->services()) {
