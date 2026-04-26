@@ -188,15 +188,17 @@ void searchAndConnect()
     cout << "Device To Connect To" << peripheral.identifier() << " [" << peripheral.address() << "]" << endl;
 
     // TODO: This wil be conditional. It will call disconnect if the button is pressed and connected
-    peripheral.disconnect();
-    // connect(&peripheral);
+    // peripheral.disconnect();
+    connect(&peripheral);
 }
 
 void connect(SimpleBLE::Peripheral* peripheral) {
     cout << "Connecting to " << peripheral->identifier() << " [" << peripheral->address() << "]" << endl;
     peripheral->connect();
 
-    unsigned char txBuffer[] = { 'C', 'o', 'n', 'n', 'e', 'c', 't', 'e', 'd', '\r'};
+    // unsigned char txBuffer[] = { 'C', 'o', 'n', 'n', 'e', 'c', 't', 'e', 'd', '\r'};
+    // uint8_t txBuffer[1] = { 25 };
+    uint8_t txBuffer[16] = { 'C', 'o', 'n', 'n', 'e', 'c', 't', 'e', 'd', '\r' };
     cout << "Sending Connected over serial" << endl;
     write(serial_port, &txBuffer, sizeof(txBuffer));
 
