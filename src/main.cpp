@@ -38,6 +38,7 @@ void setupSerialComm();
 SimpleBLE::Peripheral peripheral;
 
 int main() {
+    bleStatus = DISCONNECTED;
     thread gpioThread(setupGPIO);
     thread serialThread(setupSerialComm);
 
