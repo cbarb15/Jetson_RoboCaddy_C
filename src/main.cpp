@@ -37,7 +37,7 @@ void setupGPIO();
 void setupSerialComm();
 SimpleBLE::Peripheral peripheral;
 
-// TODO: Need to handle exceptions if can
+// TODO: Need to handle exceptions if can't conn
 int main() {
     bleStatus = DISCONNECTED;
     thread gpioThread(setupGPIO);
