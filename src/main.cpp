@@ -69,6 +69,7 @@ void calling()
         peripheral.disconnect();
         bleStatus = DISCONNECTED;
         write(serial_port, &bleStatus, sizeof(bleStatus));
+        cout << "Disconnected" << endl;
     }
 }
 
