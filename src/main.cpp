@@ -37,18 +37,13 @@ void setupGPIO();
 void setupSerialComm();
 
 int main() {
-    // thread gpioThread(setupGPIO);
+    thread gpioThread(setupGPIO);
     thread serialThread(setupSerialComm);
 
-    // gpioThread.join();
+    gpioThread.join();
     serialThread.join();
 
-    bleStatus = DISCONNECTED;
-    cout << "Sending " << bleStatus << " over serial" << endl;
-    write(serial_port, &bleStatus, sizeof(bleStatus));
-
     return 0;
-
 }
 
 //* Ctrl-c signal function handler */
@@ -131,12 +126,10 @@ void setupSerialComm() {
     if (serial_port < 0) {
         cout << "Error opening serial port " << serial_port << endl;
     }
-    cout << "Serial port opened" << endl;
 
     if (tcgetattr(serial_port, &tty) != 0) {
         cout << "Error " << errno << " from tcgetattr() " << endl;
     }
-    cout << "Got terminos struct to configure uart settings" << endl;
 
     tty.c_cflag &= ~PARENB;        // No parity
     tty.c_cflag &= ~CSTOPB;        // 1 Stop bit
@@ -162,7 +155,8 @@ void setupSerialComm() {
     if (tcsetattr(serial_port, TCSANOW, &tty) != 0) {
         cout << "Error " << strerror(errno) << " from tcsetattr" << endl;
     }
-    cout << "Terminos saved with config" << endl;
+
+    cout << "Serial port opened and configured" << endl;
 }
 
 void searchAndConnect()
@@ -207,11 +201,8 @@ void connect(SimpleBLE::Peripheral* peripheral) {
     cout << "Connecting to " << peripheral->identifier() << " [" << peripheral->address() << "]" << endl;
     peripheral->connect();
 
-    // unsigned char txBuffer[] = { 'C', 'o', 'n', 'n', 'e', 'c', 't', 'e', 'd', '\r'};
-    // uint8_t txBuffer[1] = { 25 };
-    uint8_t txBuffer[16] = { 'C', 'o', 'n', 'n', 'e', 'c', 't', 'e', 'd', '\r' };
-    cout << "Sending Connected over serial" << endl;
-    write(serial_port, &txBuffer, sizeof(txBuffer));
+    bleStatus = CONNECTED;
+    write(serial_port, &bleStatus, sizeof(bleStatus));
 
     vector<pair<SimpleBLE::BluetoothUUID, SimpleBLE::BluetoothUUID>> readable_characteristics;
     for (auto& service : peripheral->services()) {
