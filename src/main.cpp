@@ -18,11 +18,18 @@
 
 using namespace std;
 
+enum BLEStatus {
+    CONNECTED = 1,
+    DISCONNECTED,
+    SEARCHING
+};
+
 /* Global variable to interrupt the loop later on*/
 static volatile int interrupt = 1;
 unsigned long timestamp;
 struct termios tty;
 int serial_port;
+enum BLEStatus bleStatus;
 
 void searchAndConnect();
 void connect(SimpleBLE::Peripheral* peripheral);
@@ -30,11 +37,15 @@ void setupGPIO();
 void setupSerialComm();
 
 int main() {
-    thread gpioThread(setupGPIO);
+    // thread gpioThread(setupGPIO);
     thread serialThread(setupSerialComm);
 
-    gpioThread.join();
+    // gpioThread.join();
     serialThread.join();
+
+    bleStatus = DISCONNECTED;
+    cout << "Sending " << bleStatus << " over serial" << endl;
+    write(serial_port, &bleStatus, sizeof(bleStatus));
 
     return 0;
 
