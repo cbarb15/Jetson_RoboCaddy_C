@@ -59,6 +59,7 @@ void inthandler(int signum)
 /* Function to be called upon if edge is detected */
 void calling()
 {
+    cout << "BLEStattus is " << bleStatus << endl;
     if (bleStatus == DISCONNECTED)
     {
         searchAndConnect();
@@ -66,8 +67,8 @@ void calling()
     else if (bleStatus == CONNECTED && peripheral.is_connected())
     {
         peripheral.disconnect();
+        bleStatus = DISCONNECTED;
     }
-
 }
 
 void setupGPIO()
@@ -166,7 +167,7 @@ void searchAndConnect()
     adapter.set_callback_on_scan_start([]() { cout << "Scan started." << endl; });
     adapter.set_callback_on_scan_stop([]() { cout << "Scan stopped." << endl; });
     adapter.set_callback_on_scan_found([&](SimpleBLE::Peripheral peripheral) {
-        // cout << "Found device: " << peripheral.identifier() << " [" << peripheral.address() << "]" << endl;
+        cout << "Found device: " << peripheral.identifier() << " [" << peripheral.address() << "]" << endl;
 
         if (peripheral.is_connectable()) {
             peripherals.push_back(peripheral);
@@ -175,7 +176,6 @@ void searchAndConnect()
 
     adapter.scan_for(5000);
 
-    // SimpleBLE::Peripheral peripheral;
     for (int i = 0; i < peripherals.size(); i++) {
         SimpleBLE::Peripheral peripheralTemp = peripherals[i];
         if (peripheralTemp.address() == DEVICE_ADDRESS) {
@@ -183,8 +183,6 @@ void searchAndConnect()
             break;
         }
     }
-
-    // cout << "Device To Connect To" << peripheral.identifier() << " [" << peripheral.address() << "]" << endl;
 
     connect(&peripheral);
 }
