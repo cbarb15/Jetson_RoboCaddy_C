@@ -35,9 +35,10 @@ void searchAndConnect();
 void connect(SimpleBLE::Peripheral* peripheral);
 void setupGPIO();
 void setupSerialComm();
+void readCharacteristics(vector<pair<SimpleBLE::BluetoothUUID, SimpleBLE::BluetoothUUID>> characteristics);
 SimpleBLE::Peripheral peripheral;
 
-// TODO: Need to handle exceptions if can't conn
+// TODO: Need to handle exceptions if can't connect etc.
 int main() {
     bleStatus = DISCONNECTED;
     thread gpioThread(setupGPIO);
@@ -215,5 +216,18 @@ void connect(SimpleBLE::Peripheral* peripheral) {
     cout << "Readable characteristics:" << endl;
     for (size_t i = 0; i < readable_characteristics.size(); i++) {
         cout << "[" << i << "] " << readable_characteristics[i].first << " " << readable_characteristics[i].second << endl;
+    }
+
+    readCharacteristics(readable_characteristics);
+}
+
+void readCharacteristics(vector<pair<SimpleBLE::BluetoothUUID, SimpleBLE::BluetoothUUID>> characteristics) {
+
+    while (bleStatus == CONNECTED) {
+        SimpleBLE::ByteArray leftJoystickData = peripheral.read(characteristics[4].first, characteristics[4].second);
+        SimpleBLE::ByteArray rightJoystickData = peripheral.read(characteristics[5].first, characteristics[5].second);
+
+        cout << "Left Joystick data is: " << leftJoystickData << endl;
+        cout << "Right Joystick data is: " << rightJoystickData << endl;
     }
 }
