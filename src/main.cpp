@@ -234,6 +234,8 @@ void readCharacteristics(vector<pair<SimpleBLE::BluetoothUUID, SimpleBLE::Blueto
 
         uint16_t leftJoystickValue = decipherBytes(leftJoystickData);
         uint16_t rightJoystickValue = decipherBytes(rightJoystickData);
+
+        // Will need to write through uart to th
         cout << leftJoystickValue << endl;
         cout << rightJoystickData << endl;
     }
