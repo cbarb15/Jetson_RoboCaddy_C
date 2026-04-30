@@ -5,6 +5,7 @@
 #include <jetgpio.h>
 #include <stdio.h>
 #include <string.h>
+#include <bitset>
 
 // Linux headers
 #include <fcntl.h> // Contains file controls like O_RDWR
@@ -36,16 +37,18 @@ void connect(SimpleBLE::Peripheral* peripheral);
 void setupGPIO();
 void setupSerialComm();
 void readCharacteristics(vector<pair<SimpleBLE::BluetoothUUID, SimpleBLE::BluetoothUUID>> characteristics);
+uint16_t decipherBytes(SimpleBLE::ByteArray joystickData);
 SimpleBLE::Peripheral peripheral;
 
 // TODO: Need to handle exceptions if can't connect etc.
 int main() {
     bleStatus = DISCONNECTED;
-    thread gpioThread(setupGPIO);
-    thread serialThread(setupSerialComm);
-
-    gpioThread.join();
-    serialThread.join();
+    searchAndConnect();
+    // thread gpioThread(setupGPIO);
+    // thread serialThread(setupSerialComm);
+    //
+    // gpioThread.join();
+    // serialThread.join();
 
     return 0;
 }
@@ -227,7 +230,30 @@ void readCharacteristics(vector<pair<SimpleBLE::BluetoothUUID, SimpleBLE::Blueto
         SimpleBLE::ByteArray leftJoystickData = peripheral.read(characteristics[4].first, characteristics[4].second);
         SimpleBLE::ByteArray rightJoystickData = peripheral.read(characteristics[5].first, characteristics[5].second);
 
-        cout << "Left Joystick data is: " << leftJoystickData << endl;
-        cout << "Right Joystick data is: " << rightJoystickData << endl;
+        // cout << "Right Joystick data is: " << rightJoystickData << endl;
+
+        uint16_t leftJoystickValue = decipherBytes(leftJoystickData);
+        uint16_t rightJoystickValue = decipherBytes(rightJoystickData);
+        cout << leftJoystickValue << endl;
+        cout << rightJoystickData << endl;
     }
+}
+
+uint16_t decipherBytes(SimpleBLE::ByteArray joystickData) {
+    string hexString = joystickData.toHex(false);
+    string firstBitStr = hexString.substr(0, 2);
+    string secondBitStr = hexString.substr(2, 3);
+
+    uint16_t firstBit = stoul(firstBitStr, nullptr, 16);
+    bitset<16> num{firstBit};
+    firstBit <<= 8;
+
+    uint16_t secondBit = stoul(secondBitStr, nullptr, 16);
+    bitset<16> num2{secondBit};
+
+    bitset<16> finalBits{((firstBit | secondBit))};
+
+    uint16_t finalNum = (uint16_t)finalBits.to_ullong();
+
+    return finalNum;
 }
